@@ -5,6 +5,10 @@ Bot that will hopefully be able to provide match data for current pubg game of a
 
 `gem install discordrb`
 
+`gem install json`
+
+`gem install byebug`
+
 `brew install libsodium`
 
 `brew install ffmpeg`
