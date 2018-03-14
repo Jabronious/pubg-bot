@@ -2,10 +2,24 @@ require 'discordrb'
 require 'byebug'
 require 'json'
 
+BASE_URL = "https://api.pubgtracker.com/v2/profile/pc/"
+
 file = File.read('bot_info.json')
 data_hash = JSON.parse(file)
 
-bot = Discordrb::Bot.new token: data_hash['CLIENT_SECRET'], client_id: data_hash['CLIENT_ID']
+bot = Discordrb::Bot.new token: data_hash['TOKEN'], client_id: data_hash['CLIENT_ID']
+
+def self.pubg_tracker_request(account_name, key)
+  uri = URI(BASE_URL + account_name)
+  req = Net::HTTP::Get.new(uri)
+  req["TRN-Api-Key"] = key
+
+  res = Net::HTTP.start(uri.hostname) {|http|
+    http.request(req)
+  }
+
+  JSON.parse res.body, symbolize_names: true
+end
 
 bot.message(with_text: '!howlong-help') do |event|
     event.respond 'Type "howlong" and then mention a specific user in the channel'
@@ -17,11 +31,8 @@ end
 bot.message(with_text: '!howlong') do |event|
     event.respond 'Mention the user you need info about:'
     event.user.await(:user) do |user_mention|
-        user_id = user_mention.content.tr('<@>', '').to_i
-        mentioned_user = bot.users[user_id]
-        event.respond "#{mentioned_user.username} Current Match:"
-        event.respond "No Match Data"
-        byebug
+        res = pubg_tracker_request(user_mention.content, data_hash['PUBG_TRACKER_KEY'])
+        event.respond res[:error] if res[:error]
     end
 end
 
