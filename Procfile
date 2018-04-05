@@ -1,0 +1,1 @@
+worker: python3 pubg_bot.py
