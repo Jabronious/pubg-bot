@@ -86,5 +86,5 @@ def _date(*date : str):
 This will change depending on whether it is passed to master
 or not for heroku
 """
-bot.run(os.environ['TOKEN'])
+bot.run(os.environ["TOKEN"])
 #bot.run(DATA['TOKEN'])
