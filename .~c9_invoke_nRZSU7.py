@@ -13,7 +13,7 @@ This bot will be your go-to pubg information buddy! Look at these neat commands:
 All commands should begin with "!"
 
 """
-
+print(os.environ)
 bot = commands.Bot(command_prefix='!', description=description)
 
 """
@@ -29,7 +29,6 @@ PUBG_URL = "https://api.playbattlegrounds.com/shards/pc-na/"
 @bot.event
 @asyncio.coroutine
 def on_ready():
-    print(os.environ)
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
