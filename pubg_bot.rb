@@ -31,7 +31,7 @@ end
 bot.message(with_text: '!howlong') do |event|
     event.respond 'What is the PUBG Username of the user?'
     event.user.await(:user) do |user_mention|
-        res = pubg_tracker_request(user_mention.content, data_hash['PUBG_TRACKER_KEY'])
+        res = pubg_tracker_request(user_mention.content, data_hash['PUBG_API_KEY'])
         event.respond res[:error] if res[:error]
     end
 end
