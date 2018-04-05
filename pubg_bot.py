@@ -57,7 +57,8 @@ def matches(ctx, ign : str):
             yield from bot.say('That player does not exist. Make sure the name is identical')
             return
         #needs to format the most 5 most recent matches
-        matches = pubg_utils.get_last_five_matches(player.matches[:5], PUBG_CLIENT)
+        match_ids = pubg_utils.get_match_id(player.matches[:5])
+        matches = PUBG_CLIENT.matches().filter(match_ids=match_ids)
         for idx, match in enumerate(matches):
             participant = pubg_utils.search_rosters(match.rosters, player)
             yield from bot.say("Game #" + idx +" - Time Survived: " +  participant.timeSurvived
