@@ -5,6 +5,7 @@ import pdb
 import requests
 from discord.ext import commands
 from pubg_python import PUBG, Shard, exceptions
+import pubg_utils
 
 description = """>>>>>Mr. Pubg-bot<<<<<
 This bot will be your go-to pubg information buddy! Look at these neat commands:
@@ -17,12 +18,6 @@ bot = commands.Bot(command_prefix='!', description=description)
 DATA = json.load(open('bot_info.json'))
 PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
 PUBG_URL = "https://api.playbattlegrounds.com/shards/pc-na/"
-
-def search_rosters(rosters, player):
-    for i in range(0, len(rosters)):
-        for k in range(0, len(rosters[i].participants)):
-            if rosters[i].participants[k].player_id == player.id:
-                return rosters[i].participants[k]
 
 @bot.event
 @asyncio.coroutine
@@ -45,7 +40,7 @@ def latest_match(ign : str, name='latest-match'):
         yield from bot.say('That player does not exist. Make sure the name is identical')
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
-    participant = search_rosters(match.rosters, player)
+    participant = pubg_utils.search_rosters(match.rosters, player)
     yield from bot.say(participant.stats)
 
 @bot.group(pass_context=True)
@@ -62,8 +57,11 @@ def matches(ctx, ign : str):
             yield from bot.say('That player does not exist. Make sure the name is identical')
             return
         #needs to format the most 5 most recent matches
-        matches = player.matches[:5]
-        yield from bot.say(matches)
+        matches = pubg_utils.get_last_five_matches(player.matches[:5], PUBG_CLIENT)
+        for idx, match in enumerate(matches):
+            participant = pubg_utils.search_rosters(match.rosters, player)
+            yield from bot.say("Game #" + idx +" - Time Survived: " +  participant.timeSurvived
+                + " Place: " + participant.winPlace + " Kills: " + participant.kills)
 
 @matches.error
 @asyncio.coroutine
