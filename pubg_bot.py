@@ -6,6 +6,7 @@ import requests
 from discord.ext import commands
 from pubg_python import PUBG, Shard, exceptions
 import pubg_utils
+import os
 
 description = """>>>>>Mr. Pubg-bot<<<<<
 This bot will be your go-to pubg information buddy! Look at these neat commands:
@@ -15,8 +16,14 @@ All commands should begin with "!"
 
 bot = commands.Bot(command_prefix='!', description=description)
 
-DATA = json.load(open('bot_info.json'))
-PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
+"""
+This will change depending on whether it is passed to master
+or not for heroku
+"""
+
+#DATA = json.load(open('bot_info.json'))
+#PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
+PUBG_CLIENT = PUBG(os.environ["PUBG_API_KEY"], Shard.PC_NA)
 PUBG_URL = "https://api.playbattlegrounds.com/shards/pc-na/"
 
 @bot.event
@@ -75,4 +82,9 @@ def _date(*date : str):
     """Format the MM DD YYYY EX: 04 03 2018"""
     yield from bot.say('Yes, the bot is cool.')
 
-bot.run(DATA['TOKEN'])
+"""
+This will change depending on whether it is passed to master
+or not for heroku
+"""
+bot.run(os.environ['TOKEN'])
+#bot.run(DATA['TOKEN'])
