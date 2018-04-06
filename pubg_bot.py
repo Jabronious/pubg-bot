@@ -13,8 +13,6 @@ This bot will be your go-to pubg information buddy! Look at these neat commands:
 All commands should begin with "!"
 
 """
-print(os.environ["PUBG_API_KEY"])
-print(os.environ["TOKEN"])
 bot = commands.Bot(command_prefix='!', description=description)
 
 """
