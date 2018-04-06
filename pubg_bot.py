@@ -52,7 +52,6 @@ def matches(ctx):#, ign : str):
     """
     if ctx.invoked_subcommand is None:
         try:
-            pdb.set_trace()
             player = PUBG_CLIENT.players().filter(player_names=[ctx.subcommand_passed])
             player = player[0]
         except exceptions.NotFoundError:
