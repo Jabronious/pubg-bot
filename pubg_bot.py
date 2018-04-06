@@ -15,14 +15,8 @@ All commands should begin with "!"
 """
 bot = commands.Bot(command_prefix='!', description=description)
 
-"""
-This will change depending on whether it is passed to master
-or not for heroku
-"""
-
-#DATA = json.load(open('bot_info.json'))
-#PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
-PUBG_CLIENT = PUBG(os.environ["PUBG_API_KEY"], Shard.PC_NA)
+DATA = json.load(open('bot_info.json'))
+PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
 PUBG_URL = "https://api.playbattlegrounds.com/shards/pc-na/"
 
 @bot.event
@@ -47,28 +41,29 @@ def latest_match(ign : str, name='latest-match'):
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
     participant = pubg_utils.search_rosters(match.rosters, player)
-    yield from bot.say(participant.stats)
+    yield from bot.say("Game: " + " Time Survived: " +  str(participant.stats['timeSurvived'])
+                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
 
 @bot.group(pass_context=True)
 @asyncio.coroutine
-def matches(ctx, ign : str):
+def matches(ctx):#, ign : str):
     """Provides match data for the last 5 matches for the in-game name provided.
     By providing a date it will get all matches that day.
     """
     if ctx.invoked_subcommand is None:
         try:
-            player = PUBG_CLIENT.players().filter(player_names=[ign])
+            pdb.set_trace()
+            player = PUBG_CLIENT.players().filter(player_names=[ctx.subcommand_passed])
             player = player[0]
         except exceptions.NotFoundError:
             yield from bot.say('That player does not exist. Make sure the name is identical')
             return
-        #needs to format the most 5 most recent matches
         match_ids = pubg_utils.get_match_id(player.matches[:5])
         matches = PUBG_CLIENT.matches().filter(match_ids=match_ids)
         for idx, match in enumerate(matches):
             participant = pubg_utils.search_rosters(match.rosters, player)
-            yield from bot.say("Game #" + idx +" - Time Survived: " +  participant.timeSurvived
-                + " Place: " + participant.winPlace + " Kills: " + participant.kills)
+            yield from bot.say("Game #" + str(idx) + ": Time Survived: " +  str(participant.stats['timeSurvived'])
+                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
 
 @matches.error
 @asyncio.coroutine
@@ -77,14 +72,9 @@ def ign_error(error, ctx):
 
 @matches.command(name='date')
 @asyncio.coroutine
-def _date(*date : str):
+def _date(*date : int):
     """Format the MM DD YYYY EX: 04 03 2018"""
+    pdb.set_trace()
     yield from bot.say('Yes, the bot is cool.')
 
-"""
-This will change depending on whether it is passed to master
-or not for heroku
-"""
-#bot.run(os.environ["TOKEN"])
-#bot.run(DATA['TOKEN'])
-bot.run("NDIyOTE0OTkxNzY3NjgzMDgy.Dacnrw.Ej5s3IG_nCYbzLU_4bKtdV2b4FQ")
+bot.run(DATA['TOKEN'])
