@@ -7,17 +7,17 @@ from discord.ext import commands
 from pubg_python import PUBG, Shard, exceptions
 import pubg_utils
 import os
+from datetime import datetime, timedelta
 
 description = """>>>>>Mr. Pubg-bot<<<<<
 This bot will be your go-to pubg information buddy! Look at these neat commands:
-All commands should begin with "!"
+All commands begin with "!"
 
 """
 bot = commands.Bot(command_prefix='!', description=description)
 
 DATA = json.load(open('bot_info.json'))
 PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
-PUBG_URL = "https://api.playbattlegrounds.com/shards/pc-na/"
 
 @bot.event
 @asyncio.coroutine
@@ -27,28 +27,11 @@ def on_ready():
     print(bot.user.id)
     print('------')
 
-@bot.command()
-@asyncio.coroutine
-def latest_match(ign : str, name='latest-match'):
-    """type !latest-match <in-game name>. Will provide stats from the most recent match.
-    
-    """
-    try:
-        player = PUBG_CLIENT.players().filter(player_names=[ign])
-        player = player[0]
-    except exceptions.NotFoundError:
-        yield from bot.say('That player does not exist. Make sure the name is identical')
-        return
-    match = PUBG_CLIENT.matches().get(player.matches[0].id)
-    participant = pubg_utils.search_rosters(match.rosters, player)
-    yield from bot.say("Game: " + " Time Survived: " +  str(participant.stats['timeSurvived'])
-                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
-
 @bot.group(pass_context=True)
 @asyncio.coroutine
-def matches(ctx):#, ign : str):
-    """Provides match data for the last 5 matches for the in-game name provided.
-    By providing a date it will get all matches that day.
+def matches(ctx):
+    """'Provides match data for the last 5 matches for the in-game name provided.
+    By providing a date it will get all matches that day.'
     """
     if ctx.invoked_subcommand is None:
         try:
@@ -64,6 +47,21 @@ def matches(ctx):#, ign : str):
             yield from bot.say("Game #" + str(idx) + ": Time Survived: " +  str(participant.stats['timeSurvived'])
                 + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
 
+@matches.command(name='latest')
+@asyncio.coroutine
+def _latest(ign : str, name='latest-match'):
+    """'latest <in-game name>. Will provide stats from the most recent match.'"""
+    try:
+        player = PUBG_CLIENT.players().filter(player_names=[ign])
+        player = player[0]
+    except exceptions.NotFoundError:
+        yield from bot.say('That player does not exist. Make sure the name is identical')
+        return
+    match = PUBG_CLIENT.matches().get(player.matches[0].id)
+    participant = pubg_utils.search_rosters(match.rosters, player)
+    yield from bot.say("Game: " + " Time Survived: " +  str(participant.stats['timeSurvived'])
+                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
+
 @matches.error
 @asyncio.coroutine
 def ign_error(error, ctx):
@@ -71,9 +69,14 @@ def ign_error(error, ctx):
 
 @matches.command(name='date')
 @asyncio.coroutine
-def _date(*date : int):
-    """Format the MM DD YYYY EX: 04 03 2018"""
+def _date(ign : str, *date : int):
+    """'date <in-game name> <date> : Format the MM DD YYYY EX: 04 03 2018'"""
     pdb.set_trace()
-    yield from bot.say('Yes, the bot is cool.')
+    date = datetime(year=date[2], month=date[1], day=date[0])
+    matches = PUBG_CLIENT.matches().filter(
+        created_at_start=str(date),
+        created_at_end=str(date + timedelta(days=1))
+    )
+    yield from bot.say("This feature is not available yet.")
 
 bot.run(DATA['TOKEN'])
