@@ -10,6 +10,13 @@ Pochinki or Hacienda.
 If you do not already have the bot_info.json file in the directory with the "pubg_bot.py"
 then you will need to have it sent to you.
 
+# Useful places to look for assistance
+
 [discord.py](https://github.com/Rapptz/discord.py) - API Wrapper for Discord's API
 
 [pubg-python](https://github.com/ramonsaraiva/pubg-python) - API Wrapper for PUBG's API
+
+[PUBG Assest](https://github.com/pubg/api-assets) - Images and different assests 
+we can use if we find it useful
+
+[embed visualizer for discord](https://leovoel.github.io/embed-visualizer/)

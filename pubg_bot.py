@@ -59,8 +59,19 @@ def _latest(ign : str, name='latest-match'):
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
     participant = pubg_utils.search_rosters(match.rosters, player)
-    yield from bot.say("Game: " + " Time Survived: " +  str(participant.stats['timeSurvived'])
-                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
+    
+    embed = discord.Embed(title=player.name + "'s Latest Match",
+                colour=discord.Colour(14066432))
+
+    embed.set_thumbnail(url="https://raw.githubusercontent.com/pubg/api-assets/master/assets/weapons/Item_Weapon_Pan.png")
+    embed.set_footer(text="Donations")
+    
+    embed.add_field(name="Match Data", value="Game Mode: " + match.game_mode + 
+            "\nTime: " + pubg_utils.friendly_match_time(match) + "\nDuration: "
+            + pubg_utils.friendly_match_duration(match.duration), inline=False)
+    embed.add_field(name="Player Stats", value=pubg_utils.build_player_game_stats(participant), inline=False)
+
+    yield from bot.say(embed=embed)
 
 @matches.error
 @asyncio.coroutine
