@@ -1,14 +1,14 @@
-# how-long-pubg-bot
-Bot that will hopefully be able to provide match data for current pubg game of a friend
+# Mr.PUBG
+Mr.PUBG is your companion that will be there no matter how many times your die dropping
+Pochinki or Hacienda.
 
-# Dependencies
+# Getting Up and Running with Mr.PUBG
+`pip3 install -r requirements.txt`
 
-`gem install discordrb`
+`python3 pubg_bot.py`
 
-`gem install json`
+If you do not already have the bot_info.json file in the directory with the "pubg_bot.py"
+then you will need to have it sent to you.
 
-`gem install byebug`
-
-`brew install libsodium`
-
-`brew install ffmpeg`
+(discord.py)[https://github.com/Rapptz/discord.py]
+(pubg-python)[https://github.com/ramonsaraiva/pubg-python]
