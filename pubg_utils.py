@@ -1,4 +1,6 @@
+from pubg_python.domain.telemetry.events import LogPlayerKill, LogPlayerTakeDamage
 from datetime import datetime
+from weapons_url import weapons_url_dict
 import pdb
 
 def search_rosters(rosters, player):
@@ -45,3 +47,23 @@ def build_player_game_stats(participant):
             + "\nVehicles Destroyed: " + str(participant.vehicle_destroys)
             + "\nWeapons Acquired: " + str(participant.weapons_acquired)
             + "\nWin Points: " + str(participant.win_points_delta))
+
+def get_weapon_img_url(events, ign):
+    attacker_events = []
+    for event in events:
+        if type(event) == LogPlayerTakeDamage and event.attacker.name == ign:
+            attacker_events.append(event)
+
+    weapon_dmg_dict = {}
+    for attack_event in attacker_events:
+        if attack_event.damage_causer_name in weapon_dmg_dict:
+            weapon_dmg_dict[attack_event.damage_causer_name] += attack_event.damage
+        else:
+            weapon_dmg_dict[attack_event.damage_causer_name] = attack_event.damage
+
+    sorted_keys = sorted(weapon_dmg_dict, key=weapon_dmg_dict.get)
+
+    try:
+        return weapons_url_dict[sorted_keys[len(sorted_keys)-1]]
+    except:
+        return weapons_url_dict["Apple"]

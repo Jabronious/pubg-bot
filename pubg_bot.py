@@ -59,11 +59,13 @@ def _latest(ign : str, name='latest-match'):
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
     participant = pubg_utils.search_rosters(match.rosters, player)
-    
+
     embed = discord.Embed(title=player.name + "'s Latest Match",
                 colour=discord.Colour(14066432))
 
-    embed.set_thumbnail(url="https://raw.githubusercontent.com/pubg/api-assets/master/assets/weapons/Item_Weapon_Pan.png")
+    tel = PUBG_CLIENT.telemetry(match.assets[0].url)
+
+    embed.set_thumbnail(url=pubg_utils.get_weapon_img_url(tel.events, player.name))
     embed.set_footer(text="Donations")
     
     embed.add_field(name="Match Data", value="Game Mode: " + match.game_mode + 
