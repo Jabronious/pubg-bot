@@ -40,13 +40,19 @@ def matches(ctx):
         except exceptions.NotFoundError:
             yield from bot.say('That player does not exist. Make sure the name is identical')
             return
-        match_ids = pubg_utils.get_match_id(player.matches[:5])
-        matches = PUBG_CLIENT.matches().filter(match_ids=match_ids)
-        for idx, match in enumerate(matches):
-            participant = pubg_utils.search_rosters(match.rosters, player)
-            yield from bot.say("Game #" + str(idx) + ": Time Survived: " +  str(participant.stats['timeSurvived'])
-                + " Place: " + str(participant.stats['winPlace']) + " Kills: " + str(participant.stats['kills']))
-
+        
+        #TODO: Make sure that if there are not 5 matches it only displays available matches
+        for idx, match in enumerate(player.matches[:5]):
+            yield from bot.say("Game #" + str(idx + 1) + ": " + match.id)
+        
+        yield from bot.say("Reaction to the match you wish to see data for:")
+        res = yield from bot.wait_for_reaction(user=ctx.message.author, timeout=10000) #Waits for 10000ms (maybe?) for a user to react.
+        match = PUBG_CLIENT.matches().get(res.reaction.message.content.split(' ')[2]) #splits message and pulls id
+        
+        yield from bot.say("Let me get that match's data.")
+        embed = pubg_utils.build_embed_message(match, player, PUBG_CLIENT, False)
+        yield from bot.say(embed=embed)
+        
 @matches.command(name='latest')
 @asyncio.coroutine
 def _latest(ign : str, name='latest-match'):
@@ -58,21 +64,9 @@ def _latest(ign : str, name='latest-match'):
         yield from bot.say('That player does not exist. Make sure the name is identical')
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
-    participant = pubg_utils.search_rosters(match.rosters, player)
-
-    embed = discord.Embed(title=player.name + "'s Latest Match",
-                colour=discord.Colour(14066432))
-
-    tel = PUBG_CLIENT.telemetry(match.assets[0].url)
-
-    embed.set_thumbnail(url=pubg_utils.get_weapon_img_url(tel.events, player.name))
-    embed.set_footer(text="Donations")
     
-    embed.add_field(name="Match Data", value="Game Mode: " + match.game_mode + 
-            "\nTime: " + pubg_utils.friendly_match_time(match) + "\nDuration: "
-            + pubg_utils.friendly_match_duration(match.duration), inline=False)
-    embed.add_field(name="Player Stats", value=pubg_utils.build_player_game_stats(participant), inline=False)
-
+    yield from bot.say("Let me get that match's data.")
+    embed = pubg_utils.build_embed_message(match, player, PUBG_CLIENT)
     yield from bot.say(embed=embed)
 
 @matches.error
