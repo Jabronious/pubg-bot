@@ -59,7 +59,7 @@ def matches(ctx):
         yield from bot.say(embed=embed)
 
         logging.info(">>>>>>>>>>>>>waiting for reaction from %s<<<<<<<<<<<<<<<<<<<", ctx.message.author)
-        res = yield from bot.wait_for_reaction(user=ctx.message.author) #Waits for 10000ms (maybe?) for a user to react.
+        res = yield from bot.wait_for_reaction(user=ctx.message.author, timeout=20000) #Waits for 10000ms (maybe?) for a user to react.
         logging.info("reaction occurred from %s", ctx.message.author)
 
         match = PUBG_CLIENT.matches().get(match_dict[res.reaction.emoji]) #splits message and pulls id
