@@ -3,6 +3,9 @@ from datetime import datetime
 from weapons_url import weapons_url_dict
 import pdb
 import discord
+import logging
+
+logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 def search_rosters(rosters, player):
     """
@@ -89,8 +92,9 @@ def build_embed_message(match, player, client, latest_match=True):
         title = player.name + "'s Match"
 
     embed = discord.Embed(title=title, colour=discord.Colour(14066432))
-
+    logging.info("telemtry data begins for %s", player.name)
     tel = client.telemetry(match.assets[0].url)
+    logging.info("telemtry data set for %s", player.name)
 
     participant = search_rosters(match.rosters, player)
 

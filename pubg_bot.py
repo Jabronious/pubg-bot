@@ -8,6 +8,9 @@ from pubg_python import PUBG, Shard, exceptions
 import pubg_utils
 import os
 from datetime import datetime, timedelta
+import logging
+
+logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 description = """>>>>>Mr. Pubg-bot<<<<<
 This bot will be your go-to pubg information buddy! Look at these neat commands:
@@ -18,6 +21,7 @@ bot = commands.Bot(command_prefix='!', description=description)
 
 DATA = json.load(open('bot_info.json'))
 PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
+EMOJIS = ["💩", "👌", "💯", "😁", "😍"]
 
 @bot.event
 @asyncio.coroutine
@@ -35,19 +39,30 @@ def matches(ctx):
     """
     if ctx.invoked_subcommand is None:
         try:
+            logging.info(">>>>>>>>>>>>>searching for player %s<<<<<<<<<<<<<<<<<<<", ctx.subcommand_passed)
             player = PUBG_CLIENT.players().filter(player_names=[ctx.subcommand_passed])
             player = player[0]
+            logging.info(">>>>>>>>>>>>>player found<<<<<<<<<<<<<<<<<<<")
         except exceptions.NotFoundError:
             yield from bot.say('That player does not exist. Make sure the name is identical')
             return
         
         #TODO: Make sure that if there are not 5 matches it only displays available matches
+        yield from bot.say("React to the match you wish to see data for:")
+        match_dict = {}
+        logging.info(">>>>>>>>>>>>>printing five matches<<<<<<<<<<<<<<<<<<<")
+        embed = discord.Embed(title="React to the match you wish to see data for:",
+                                colour=discord.Colour(14066432))
         for idx, match in enumerate(player.matches[:5]):
-            yield from bot.say("Game #" + str(idx + 1) + ": " + match.id)
-        
-        yield from bot.say("Reaction to the match you wish to see data for:")
-        res = yield from bot.wait_for_reaction(user=ctx.message.author, timeout=10000) #Waits for 10000ms (maybe?) for a user to react.
-        match = PUBG_CLIENT.matches().get(res.reaction.message.content.split(' ')[2]) #splits message and pulls id
+            match_dict[EMOJIS[idx]] = match.id
+            embed.add_field(name=EMOJIS[idx] + ': ', value=match.id)
+        yield from bot.say(embed=embed)
+
+        logging.info(">>>>>>>>>>>>>waiting for reaction from %s<<<<<<<<<<<<<<<<<<<", ctx.message.author)
+        res = yield from bot.wait_for_reaction(user=ctx.message.author) #Waits for 10000ms (maybe?) for a user to react.
+        logging.info("reaction occurred from %s", ctx.message.author)
+
+        match = PUBG_CLIENT.matches().get(match_dict[res.reaction.emoji]) #splits message and pulls id
         
         yield from bot.say("Let me get that match's data.")
         embed = pubg_utils.build_embed_message(match, player, PUBG_CLIENT, False)
@@ -58,8 +73,10 @@ def matches(ctx):
 def _latest(ign : str, name='latest-match'):
     """'latest <in-game name>. Will provide stats from the most recent match.'"""
     try:
+        logging.info(">>>>>>>>>>>>>searching for player %s, subcommand: !latest<<<<<<<<<<<<<<<<<<<")
         player = PUBG_CLIENT.players().filter(player_names=[ign])
         player = player[0]
+        logging.info(">>>>>>>>>>>>>player found<<<<<<<<<<<<<<<<<<<")
     except exceptions.NotFoundError:
         yield from bot.say('That player does not exist. Make sure the name is identical')
         return
