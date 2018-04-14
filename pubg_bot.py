@@ -48,7 +48,6 @@ def matches(ctx):
             return
         
         #TODO: Make sure that if there are not 5 matches it only displays available matches
-        yield from bot.say("React to the match you wish to see data for:")
         match_dict = {}
         logging.info(">>>>>>>>>>>>>printing five matches<<<<<<<<<<<<<<<<<<<")
         embed = discord.Embed(title="React to the match you wish to see data for:",
