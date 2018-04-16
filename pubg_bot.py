@@ -88,6 +88,8 @@ def _latest(ign : str, name='latest-match'):
 @matches.error
 @asyncio.coroutine
 def ign_error(error, ctx):
+    logging.debug('***********Invoked Command: ' + ctx.invoked_with + ", Invoked Subcommand: " + str(ctx.invoked_subcommand) + "(" + ctx.subcommand_passed + "), "
+                    + "Error: " + str(error) + ", Message author: " + ctx.message.author.name + ", Message: " + ctx.message.content + "***********")
     yield from bot.say("You need to put a player's in-game name")
 
 @matches.command(name='date')
