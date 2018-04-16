@@ -105,11 +105,12 @@ def _date(ign : str, *date : int):
     )
     yield from bot.say("This feature is not available yet.")
 
-@bot.command
+@bot.command(pass_context=True)
 @asyncio.coroutine
-def restart(message):
+def restart(ctx):
+    message = ctx.message
     logging.info("Restart >>>INITIATED<<< in server(" + message.author.server.name + ") by " + message.author.name)
-    if message.author.server.id == '422922120608350208' and message.author.id == '304806386536153088':
+    if message.author.server.id == '422922120608350208' and message.author.id == '304806386536153088' or message.author.id == '176648415428476930':
         yield from bot.send_message(message.channel, 'Restarting')
         logging.info("Restart >>>SUCCESSFUL<<< in server(" + message.author.server.name + ") by " + message.author.name)
         python = sys.executable
