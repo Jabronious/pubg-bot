@@ -105,18 +105,15 @@ def _date(ign : str, *date : int):
     )
     yield from bot.say("This feature is not available yet.")
 
-@bot.event
+@bot.command
 @asyncio.coroutine
-def on_message(message):
-    if message.author == bot.user:
-        return
+def restart(message):
     logging.info("Restart >>>INITIATED<<< in server(" + message.author.server.name + ") by " + message.author.name)
     if message.author.server.id == '422922120608350208' and message.author.id == '304806386536153088':
-        if message.content.startswith('!restart'):
-            yield from bot.send_message(message.channel, 'Restarting')
-            logging.info("Restart >>>SUCCESSFUL<<< in server(" + message.author.server.name + ") by " + message.author.name)
-            python = sys.executable
-            os.execl(python, python, * sys.argv)
+        yield from bot.send_message(message.channel, 'Restarting')
+        logging.info("Restart >>>SUCCESSFUL<<< in server(" + message.author.server.name + ") by " + message.author.name)
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
     logging.info("Restart >>>FAILED<<< in server(" + message.author.server.name + ") by " + message.author.name)
 
 bot.run(DATA['TOKEN'])
