@@ -20,3 +20,5 @@ then you will need to have it sent to you.
 we can use if we find it useful
 
 [embed visualizer for discord](https://leovoel.github.io/embed-visualizer/)
+
+[Emoji Cheatsheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
