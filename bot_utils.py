@@ -4,9 +4,19 @@ from weapons_url import weapons_url_dict
 import pdb
 import discord
 import logging
+import random
+import emoji
 
 logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 
+
+###################################
+#                                 #
+#                                 #
+#         PUBG Specific           #
+#                                 #
+#                                 #
+###################################
 def search_rosters(rosters, player):
     """
     Iterates through a roster list to find a player and will return the participant.
@@ -73,6 +83,60 @@ def build_player_game_stats(participant):
             + "\nWeapons Acquired: " + str(participant.weapons_acquired)
             + "\nWin Points: " + str(participant.win_points_delta))
 
+def get_weapon_img_url(events, ign):
+    """
+    This method accepts a telemetry events array and an in game name then iterates to 
+    find all events where the in game name was the attacker. It then populates a
+    weapon_dmg_dict with the various weapons that was the causer of damage and 
+    then find ths weapon with the most dmg and returns it's image url.and
+    
+    events: this should be an entire list of telemetry events
+    
+    ign: a string of an exact PUBG_CLIENT.player name. player.name should generally be used
+    to ensure accuracy
+    """
+    attacker_events = []
+    for event in events:
+        if type(event) == LogPlayerTakeDamage and event.attacker.name == ign:
+            attacker_events.append(event)
+
+    weapon_dmg_dict = {}
+    for attack_event in attacker_events:
+        if attack_event.damage_causer_name in weapon_dmg_dict:
+            weapon_dmg_dict[attack_event.damage_causer_name] += attack_event.damage
+        else:
+            weapon_dmg_dict[attack_event.damage_causer_name] = attack_event.damage
+
+    sorted_keys = sorted(weapon_dmg_dict, key=weapon_dmg_dict.get)
+
+    try:
+        return weapons_url_dict[sorted_keys[len(sorted_keys)-1]]
+    except:
+        return weapons_url_dict["Apple"]
+
+###################################
+#                                 #
+#                                 #
+#         Emoji Specific          #
+#                                 #
+#                                 #
+###################################
+EMOJI_LIST = [":bow:",":smile:",":simple_smile:",":laughing:",":blush:",":smiley:",":relaxed:",":smirk:",":heart_eyes:",":kissing_heart:",":kissing_closed_eyes:",":flushed:",":relieved:",":satisfied:",":grin:",":wink:",":stuck_out_tongue_winking_eye:",":stuck_out_tongue_closed_eyes:",":grinning:",":kissing:",":kissing_smiling_eyes:",":stuck_out_tongue:",":sleeping:",":worried:",":frowning:",":anguished:",":open_mouth:",":grimacing:",":confused:",":hushed:",":expressionless:",":unamused:",":sweat_smile:",":sweat:",":disappointed_relieved:",":weary:",":pensive:",":disappointed:",":confounded:",":fearful:",":cold_sweat:",":persevere:",":cry:",":sob:",":joy:",":astonished:",":scream:",":necktie:",":tired_face:",":angry:",":rage:",":triumph:",":sleepy:",":yum:",":mask:",":sunglasses:"]
+
+def get_random_emoji_list(list_len=5):
+    emoji_list = []
+    while len(emoji_list) is not list_len:
+        emoji_list.append(emoji.emojize(EMOJI_LIST[random.randint(0, len(EMOJI_LIST)-1)], use_aliases=True))
+        emoji_list = list(set(emoji_list))
+    return emoji_list
+
+###################################
+#                                 #
+#                                 #
+#         Discord Specific        #
+#                                 #
+#                                 #
+###################################
 def build_embed_message(match, player, client, latest_match=True):
     """
     This method will create an embedded message that will be returned.
@@ -106,34 +170,3 @@ def build_embed_message(match, player, client, latest_match=True):
     embed.add_field(name="Player Stats", value=build_player_game_stats(participant), inline=False)
     
     return embed
-
-def get_weapon_img_url(events, ign):
-    """
-    This method accepts a telemetry events array and an in game name then iterates to 
-    find all events where the in game name was the attacker. It then populates a
-    weapon_dmg_dict with the various weapons that was the causer of damage and 
-    then find ths weapon with the most dmg and returns it's image url.and
-    
-    events: this should be an entire list of telemetry events
-    
-    ign: a string of an exact PUBG_CLIENT.player name. player.name should generally be used
-    to ensure accuracy
-    """
-    attacker_events = []
-    for event in events:
-        if type(event) == LogPlayerTakeDamage and event.attacker.name == ign:
-            attacker_events.append(event)
-
-    weapon_dmg_dict = {}
-    for attack_event in attacker_events:
-        if attack_event.damage_causer_name in weapon_dmg_dict:
-            weapon_dmg_dict[attack_event.damage_causer_name] += attack_event.damage
-        else:
-            weapon_dmg_dict[attack_event.damage_causer_name] = attack_event.damage
-
-    sorted_keys = sorted(weapon_dmg_dict, key=weapon_dmg_dict.get)
-
-    try:
-        return weapons_url_dict[sorted_keys[len(sorted_keys)-1]]
-    except:
-        return weapons_url_dict["Apple"]
