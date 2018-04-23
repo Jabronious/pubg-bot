@@ -126,7 +126,7 @@ def _latest(ctx, ign : str, name='latest-match'):
         yield from bot.say('That player does not exist. Make sure the name is identical')
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
-    
+
     yield from bot.say("Let me get that match's data.")
     embed = bot_utils.build_embed_message(match, player, PUBG_CLIENT)
     yield from bot.say(embed=embed)

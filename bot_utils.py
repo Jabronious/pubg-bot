@@ -1,6 +1,7 @@
 from pubg_python.domain.telemetry.events import LogPlayerKill, LogPlayerTakeDamage
 from datetime import datetime
 from weapons_url import weapons_url_dict
+from pubg_bot_wrapper import PubgBotWrapper
 import pdb
 import discord
 import logging
