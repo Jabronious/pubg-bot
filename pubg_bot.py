@@ -20,8 +20,9 @@ All commands begin with "!"
 """
 bot = commands.Bot(command_prefix='!', description=description)
 
-DATA = json.load(open('bot_info.json'))
-PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
+#DATA = json.load(open('bot_info.json'))
+#PUBG_CLIENT = PUBG(DATA["PUBG_API_KEY"], Shard.PC_NA)
+PUBG_CLIENT = PUBG(os.environ["PUBG_API_KEY"], Shard.PC_NA)
 
 @bot.event
 @asyncio.coroutine
@@ -170,4 +171,5 @@ def restart(ctx):
         os.execl(python, python, * sys.argv)
     logging.info("Restart >>>FAILED<<< in server(" + message.author.server.name + ") by " + message.author.name)
 
-bot.run(DATA['TOKEN'])
+#bot.run(DATA['TOKEN'])
+bot.run(os.environ['TOKEN'])

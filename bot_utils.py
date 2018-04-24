@@ -5,6 +5,7 @@ import pdb
 import discord
 import logging
 import random
+import os
 import emoji
 
 logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
