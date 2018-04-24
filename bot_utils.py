@@ -7,9 +7,10 @@ import discord
 import logging
 import random
 import emoji
+import json
 
 logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
-
+DATA = json.load(open('bot_info.json'))
 
 ###################################
 #                                 #
@@ -84,37 +85,6 @@ def build_player_game_stats(participant):
             + "\nWeapons Acquired: " + str(participant.weapons_acquired)
             + "\nWin Points: " + str(participant.win_points_delta))
 
-def get_weapon_img_url(events, ign):
-    """
-    This method accepts a telemetry events array and an in game name then iterates to 
-    find all events where the in game name was the attacker. It then populates a
-    weapon_dmg_dict with the various weapons that was the causer of damage and 
-    then find ths weapon with the most dmg and returns it's image url.and
-    
-    events: this should be an entire list of telemetry events
-    
-    ign: a string of an exact PUBG_CLIENT.player name. player.name should generally be used
-    to ensure accuracy
-    """
-    attacker_events = []
-    for event in events:
-        if type(event) == LogPlayerTakeDamage and event.attacker.name == ign:
-            attacker_events.append(event)
-
-    weapon_dmg_dict = {}
-    for attack_event in attacker_events:
-        if attack_event.damage_causer_name in weapon_dmg_dict:
-            weapon_dmg_dict[attack_event.damage_causer_name] += attack_event.damage
-        else:
-            weapon_dmg_dict[attack_event.damage_causer_name] = attack_event.damage
-
-    sorted_keys = sorted(weapon_dmg_dict, key=weapon_dmg_dict.get)
-
-    try:
-        return weapons_url_dict[sorted_keys[len(sorted_keys)-1]]
-    except:
-        return weapons_url_dict["Apple"]
-
 ###################################
 #                                 #
 #                                 #
@@ -157,13 +127,18 @@ def build_embed_message(match, player, client, latest_match=True):
         title = player.name + "'s Match"
 
     embed = discord.Embed(title=title, colour=discord.Colour(14066432))
-    #logging.info("telemtry data begins for %s", player.name)
-    #tel = client.telemetry(match.assets[0].url)
-    #logging.info("telemtry data set for %s", player.name)
 
     participant = search_rosters(match.rosters, player)
 
-    embed.set_thumbnail(url="https://raw.githubusercontent.com/pubg/api-assets/master/assets/weapons/Item_Weapon_Apple.png")
+    wrap = PubgBotWrapper(DATA["WEBSITE_KEY"])
+    response = wrap.participants(match.id, player.id)
+
+    try:
+        url = weapons_url_dict[response['preferred_weapon']]
+    except:
+        url = weapons_url_dict["Apple"]
+
+    embed.set_thumbnail(url=url)
     embed.set_footer(text="Donations")
     embed.add_field(name="Match Data", value="Game Mode: " + match.game_mode + 
             "\nTime: " + friendly_match_time(match) + "\nDuration: "
