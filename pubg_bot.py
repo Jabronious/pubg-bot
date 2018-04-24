@@ -38,6 +38,7 @@ def on_ready():
 #                                #
 #                                #
 ##################################
+@commands.cooldown(1, 30, commands.BucketType.user)
 @bot.group(pass_context=True)
 @asyncio.coroutine
 def matches(ctx):
