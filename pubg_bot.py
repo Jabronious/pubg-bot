@@ -4,7 +4,6 @@ import json
 import pdb
 import requests
 from discord.ext import commands
-from discord.enums import ChannelType
 from pubg_python import PUBG, Shard, exceptions
 import bot_utils
 import sys
@@ -31,6 +30,9 @@ def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    # Test server channel, '#general,' will receive the message.
+    # Thought this best to not blow people up if the bot isnt working and
+    # we need to restart it a lot.
     channel = bot.get_channel('434834774646063116')
     yield from bot.send_message(channel, "I was restarted. Don't worry though... I'm back up and running!")
 
@@ -197,6 +199,7 @@ def matches_error(error, ctx):
 def restart(ctx):
     message = ctx.message
     logging.info("Restart >>>INITIATED<<< in server(" + message.author.server.name + ") by " + message.author.name)
+    # This will only work for Test Server and Jabronious/burnNturn3 users
     if message.author.server.id == '422922120608350208' and message.author.id == '304806386536153088' or message.author.id == '176648415428476930':
         yield from bot.send_message(message.channel, 'Restarting')
         logging.info("Restart >>>SUCCESSFUL<<< in server(" + message.author.server.name + ") by " + message.author.name)
