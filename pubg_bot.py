@@ -33,7 +33,7 @@ def on_ready():
     # Test server channel, '#general,' will receive the message.
     # Thought this best to not blow people up if the bot isnt working and
     # we need to restart it a lot.
-    channel = bot.get_channel('434834774646063116')
+    channel = bot.get_channel('422922120608350210')
     yield from bot.send_message(channel, "I was restarted. Don't worry though... I'm back up and running!")
 
 ##################################
