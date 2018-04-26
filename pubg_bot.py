@@ -89,9 +89,12 @@ def matches(ctx):
 @matches.command(name='last', pass_context=True)
 @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
 @asyncio.coroutine
-def _last(ctx, ign : str, number_of_matches : int):
+def _last(ctx, ign : str, number_of_matches : int, *shard : str):
     """'EX: <!matches last Jabronious 10> - This will provide 10 matches for Jabronious
     """
+    if shard[0]:
+        PUBG_CLIENT.shard = Shard(shard[0])
+
     try:
         logging.info(">>>>>>>>>>>>>searching for player %s<<<<<<<<<<<<<<<<<<<", ign)
         player = PUBG_CLIENT.players().filter(player_names=[ign])
@@ -121,13 +124,17 @@ def _last(ctx, ign : str, number_of_matches : int):
 
     yield from bot.say("Let me get " + match_dict[res.reaction.emoji] + " match's data.")
     embed = bot_utils.build_embed_message(match, player, PUBG_CLIENT, False)
+    reset_pubg_client_shard()
     yield from bot.say(embed=embed)
 
 @matches.command(name='latest', pass_context=True)
 @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
 @asyncio.coroutine
-def _latest(ctx, ign : str, name='latest-match'):
+def _latest(ctx, ign : str, *shard : str, name='latest'):
     """'latest <in-game name>. Will provide stats from the most recent match.'"""
+    if shard:
+        PUBG_CLIENT.shard = Shard(shard[0])
+
     try:
         logging.info(">>>>>>>>>>>>>searching for player %s, subcommand: %s<<<<<<<<<<<<<<<<<<<", ign, ctx.subcommand_passed)
         player = PUBG_CLIENT.players().filter(player_names=[ign])
@@ -140,6 +147,7 @@ def _latest(ctx, ign : str, name='latest-match'):
     
     yield from bot.say("Let me get that match's data.")
     embed = bot_utils.build_embed_message(match, player, PUBG_CLIENT)
+    reset_pubg_client_shard()
     yield from bot.say(embed=embed)
 
 @matches.command(name='date', pass_context=True)
@@ -157,6 +165,25 @@ def _date(ctx, ign : str, *date : int):
 ##################################
 #                                #
 #                                #
+#         Shard Commands         #
+#                                #
+#                                #
+##################################
+@bot.command(name='shards', pass_context=True)
+@asyncio.coroutine
+def list_shards(name='shards'):
+    """
+    This will list all the available shards
+    """
+    embed = discord.Embed(title="Shards:", colour=discord.Colour(14066432))
+    embed.set_footer(text="Donations")
+    for idx, shard in enumerate(Shard):
+        embed.add_field(name=str(idx + 1) + ": ", value=shard.value, inline=True)
+    yield from bot.say(embed=embed)
+
+##################################
+#                                #
+#                                #
 #         Update Commands        #
 #                                #
 #                                #
@@ -164,8 +191,16 @@ def _date(ctx, ign : str, *date : int):
 @bot.command(pass_context=True)
 @asyncio.coroutine
 def whatsnew(ctx):
+    """
+    Displays all the new stuff we added!
+    """
     embed = discord.Embed(title="Updates:", colour=discord.Colour(14066432))
     embed.set_footer(text="Donations")
+    embed.add_field(name="**__New Updates__**", value="---------")
+    embed.add_field(name="**Region/Platform Selection:**",
+        value="For matches' subcommands 'latest' and 'last' you can type a platform and region to look for matches now (Ex: '!matches latest Jabronious pc-na'). "
+        + "Find the list of shards using !shards")
+    embed.add_field(name="**__Recent Updates__**", value="---------")
     embed.add_field(name="**Cooldowns:**", value="Matches' commands will have cooldowns now. If you exceed them they will tell how long you have to wait.")
     embed.add_field(name="**Showing Updates:**", value="This too is a new command that can help keep you updated on things that new to the bot!")
     yield from bot.say(embed=embed)
