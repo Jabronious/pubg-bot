@@ -30,6 +30,11 @@ def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    # Test server channel, '#general,' will receive the message.
+    # Thought this best to not blow people up if the bot isnt working and
+    # we need to restart it a lot.
+    channel = bot.get_channel('422922120608350210')
+    yield from bot.send_message(channel, "I was restarted. Don't worry though... I'm back up and running!")
 
 ##################################
 #                                #
@@ -39,6 +44,7 @@ def on_ready():
 #                                #
 ##################################
 @bot.group(pass_context=True)
+@commands.cooldown(rate=3, per=10.0, type=commands.BucketType.user)
 @asyncio.coroutine
 def matches(ctx):
     """'Provides match data for the last 5 matches for the in-game name provided.
@@ -78,6 +84,7 @@ def matches(ctx):
         yield from bot.say(embed=embed)
 
 @matches.command(name='last', pass_context=True)
+@commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
 @asyncio.coroutine
 def _last(ctx, ign : str, number_of_matches : int):
     """'EX: <!matches last Jabronious 10> - This will provide 10 matches for Jabronious
@@ -114,6 +121,7 @@ def _last(ctx, ign : str, number_of_matches : int):
     yield from bot.say(embed=embed)
 
 @matches.command(name='latest', pass_context=True)
+@commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
 @asyncio.coroutine
 def _latest(ctx, ign : str, name='latest-match'):
     """'latest <in-game name>. Will provide stats from the most recent match.'"""
@@ -143,13 +151,41 @@ def _date(ctx, ign : str, *date : int):
     )
     yield from bot.say("This feature is not available yet.")
 
-@matches.error
+##################################
+#                                #
+#                                #
+#         Update Commands        #
+#                                #
+#                                #
+##################################
+@bot.command(pass_context=True)
 @asyncio.coroutine
-def ign_error(error, ctx):
+def whatsnew(ctx):
+    embed = discord.Embed(title="Updates:", colour=discord.Colour(14066432))
+    embed.set_footer(text="Donations")
+    embed.add_field(name="**Cooldowns:**", value="Matches' commands will have cooldowns now. If you exceed them they will tell how long you have to wait.")
+    embed.add_field(name="**Showing Updates:**", value="This too is a new command that can help keep you updated on things that new to the bot!")
+    yield from bot.say(embed=embed)
+
+##################################
+#                                #
+#                                #
+#            Errors              #
+#                                #
+#                                #
+##################################
+@matches.error
+@_latest.error
+@_last.error
+@asyncio.coroutine
+def matches_error(error, ctx):
     logging.debug('***********Invoked Command: ' + ctx.invoked_with + ", Invoked Subcommand: " + str(ctx.invoked_subcommand) + "(" + ctx.subcommand_passed + "), "
                     + "Error: " + str(error) + ", Message author: " + ctx.message.author.name + ", Message: " + ctx.message.content + "***********")
-    yield from bot.say("Something Happened, OH NO!! Don't Worry, you just need to make sure you have entered the command correct" + 
-        "or the player's in-game name is identical")
+    if type(error) == discord.ext.commands.errors.CommandOnCooldown:
+        yield from bot.say(str(error))
+    else:
+        yield from bot.say("Something Happened, OH NO!! Don't Worry, you just need to make sure you have entered the command correct" +
+            "or the player's in-game name is identical")
 
 ##################################
 #                                #
@@ -163,6 +199,7 @@ def ign_error(error, ctx):
 def restart(ctx):
     message = ctx.message
     logging.info("Restart >>>INITIATED<<< in server(" + message.author.server.name + ") by " + message.author.name)
+    # This will only work for Test Server and Jabronious/burnNturn3 users
     if message.author.server.id == '422922120608350208' and message.author.id == '304806386536153088' or message.author.id == '176648415428476930':
         yield from bot.send_message(message.channel, 'Restarting')
         logging.info("Restart >>>SUCCESSFUL<<< in server(" + message.author.server.name + ") by " + message.author.name)
