@@ -36,6 +36,9 @@ def on_ready():
     channel = bot.get_channel('422922120608350210')
     yield from bot.send_message(channel, "I was restarted. Don't worry though... I'm back up and running!")
 
+def reset_pubg_client_shard():
+    PUBG_CLIENT.shard = Shard.PC_NA
+
 ##################################
 #                                #
 #                                #
@@ -184,8 +187,8 @@ def matches_error(error, ctx):
     if type(error) == discord.ext.commands.errors.CommandOnCooldown:
         yield from bot.say(str(error))
     else:
-        yield from bot.say("Something Happened, OH NO!! Don't Worry, you just need to make sure you have entered the command correct" +
-            "or the player's in-game name is identical")
+        yield from bot.say("Something Happened, OH NO!! Don't worry, you just need to make sure you have entered the command correctly " +
+            "or the player's in-game name is identical.")
 
 ##################################
 #                                #
