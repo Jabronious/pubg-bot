@@ -4,7 +4,7 @@ import pdb
 class PubgBotWrapper(object):
     def __init__(self, api_key):
         self.api_key = api_key
-        self.base_url = "https://pubg-rails-proj-jabronious.c9users.io/api/v1/"
+        self.base_url = "https://mr-pubg.herokuapp.com/api/v1/"
 
     def matches(self, id=''):
         url = self.base_url + "matches/" + id
