@@ -84,6 +84,7 @@ def matches(ctx):
         
         yield from bot.say("Let me get " + match_dict[res.reaction.emoji] + " match's data.")
         embed = bot_utils.build_embed_message(match, player, PUBG_CLIENT, False)
+        embed.add_field(name='Hint: ', value='Hovering over the emoji you want will show you the name to search for!')
         yield from bot.say(embed=embed)
 
 @matches.command(name='last', pass_context=True)
@@ -114,6 +115,7 @@ def _last(ctx, ign : str, number_of_matches : int, *shard : str):
     for idx, match in enumerate(player.matches[:len(emoji_list)]):
         match_dict[emoji_list[idx]] = match.id
         embed.add_field(name=emoji_list[idx] + ': ', value=match.id, inline=False)
+    embed.add_field(name='Hint: ', value='Hovering over the emoji you want will show you the name to search for!')
     yield from bot.say(embed=embed)
 
     logging.info(">>>>>>>>>>>>>waiting for reaction from %s<<<<<<<<<<<<<<<<<<<", ctx.message.author)
@@ -144,7 +146,7 @@ def _latest(ctx, ign : str, *shard : str, name='latest'):
         yield from bot.say('That player does not exist. Make sure the name is identical')
         return
     match = PUBG_CLIENT.matches().get(player.matches[0].id)
-    
+
     yield from bot.say("Let me get that match's data.")
     embed = bot_utils.build_embed_message(match, player, PUBG_CLIENT)
     reset_pubg_client_shard()
